@@ -1,4 +1,12 @@
-load.breaks = function(prefix) {read.table(paste0(prefix, ".breaks"), header=T)}
+#NB: didn't put much error checking in yet, so need to put in sensible filtering values where applicable
+
+load.breaks = function(prefix, chromosome=NULL) {
+	file.name = paste0(prefix, chromosome, ".breaks")
+	if (!file.exists(file.name)) {
+		if (!is.null(chromosome) && chromosome == 23) return(load.breaks(prefix, "X"))
+		else return(NULL)
+	} else return(read.table(file.name, header=T))
+}
 
 #bounds are inclusive, ie. should include SNPs with BP equal to the boundary points
 #size currently reflects just the number of SNPs per block after the MAF filtering applied
@@ -103,4 +111,35 @@ find.node = function(tree, node.id, position) {
 }
 
 
+
+
+
+############################
+
+# I used this for making the plot I sent before, you could use this to make similar plots if you want to have a look at the splits for a particular chromosome
+
+#orig = read.table("~/tmp/partition/eur_chr22.bed", header=T)
+#N.orig = dim(orig)[1]
+#breaks.orig = c(orig$start[1], round((orig$stop[-N.orig] + orig$start[-1])/2), orig$stop[N.orig])
+#
+#
+#ld = load.breaks("chr22_max1000")
+#ld.sub47 = filter.breaks(ld, total=47)
+#ld.filt0 = load.breaks("chr22_max1000_filter100")
+#
+#x.lim = range(c(breaks.orig, ld$POSITION))
+#
+#png("vsOrig.png", 1500, 500, type="cairo")
+#plot(breaks.orig, rep(1,length(breaks.orig)), pch=19, type="b", lwd=2, col="red", xlim=x.lim, ylim=c(1,4))
+#points(ld.sub47$POSITION, rep(2,dim(ld.sub47)[1]), pch=19, type="b", lwd=2, col="blue")
+#points(ld$POSITION, rep(3,dim(ld)[1]), pch=19, type="b", lwd=2)
+#points(ld.filt0$POSITION, rep(4,dim(ld.filt0)[1]), pch=19, type="b", lwd=2, col="green")
+#
+#abline(v=breaks.orig, col=2, lty=3)
+#add = ld.filt0$POSITION[!ld.filt0$POSITION %in% ld$POSITION][c(2,3,5)]
+#points(add, rep(4, length(add)), pch=19, cex=1.5)
+#
+#dev.off()
+#
+#
 
